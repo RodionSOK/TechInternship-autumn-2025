@@ -28,3 +28,7 @@ packages:
         config:
           dir: "mocks"
           outpkg: "mocks"
+      StatisticsService:
+        config:
+          dir: "mocks"
+          outpkg: "mocks"

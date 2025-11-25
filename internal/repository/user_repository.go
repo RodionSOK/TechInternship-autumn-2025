@@ -94,6 +94,40 @@ func (r *userRepository) UpdateIsActive(userId string, IsActive bool) error {
 	return err
 }
 
+func (r *userRepository) GetAll() ([]*domain.User, error) {
+	query := 
+	`
+	SELECT user_id, username, team_name, is_active
+	FROM users
+	ORDER BY username
+	`
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*domain.User
+	for rows.Next() {
+		var user domain.User
+		if err := rows.Scan(
+			&user.UserId, 
+			&user.Username, 
+			&user.TeamName, 
+			&user.IsActive,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func (r *userRepository) Exists(userId string) (bool, error) {
 	query := 
 	`

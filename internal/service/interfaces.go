@@ -19,3 +19,7 @@ type PRService interface {
 	MergePR(prId string) (*domain.PullRequest, error)
 	ReassignReviewer(prId, oldReviewerId string) (*domain.PullRequest, string, error)
 }
+
+type StatisticsService interface {
+	GetStatistics() (*domain.Statistics, error)
+}

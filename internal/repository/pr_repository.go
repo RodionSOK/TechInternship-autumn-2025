@@ -189,3 +189,68 @@ func (r *prRepository) Exists(prId string) (bool, error) {
 	}
 	return exists, nil
 }
+
+func (r *prRepository) GetPRStatistics() (total, open, merged int, err error) {
+	totalQuery := `SELECT COUNT(*) FROM pull_requests`
+	err = r.db.QueryRow(totalQuery).Scan(&total)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	openQuery := `SELECT COUNT(*) FROM pull_requests WHERE status = 'OPEN'`
+	err = r.db.QueryRow(openQuery).Scan(&open)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	mergedQuery := `SELECT COUNT(*) FROM pull_requests WHERE status = 'MERGED'`
+	err = r.db.QueryRow(mergedQuery).Scan(&merged)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	return total, open, merged, nil
+}
+
+func (r *prRepository) GetUserReviewStatistics() ([]*domain.UserStatistics, error) {
+	query :=
+	`
+	SELECT 
+		u.user_id,
+		u.username,
+		COUNT(prr.reviewer_id) as total_reviews,
+		COUNT(CASE WHEN pr.status = 'OPEN' THEN 1 END) as open_reviews,
+		COUNT(CASE WHEN pr.status = 'MERGED' THEN 1 END) as merged_reviews
+	FROM users u
+	LEFT JOIN pr_reviewers prr ON u.user_id = prr.reviewer_id
+	LEFT JOIN pull_requests pr ON prr.pull_request_id = pr.pull_request_id
+	GROUP BY u.user_id, u.username
+	ORDER BY total_reviews DESC, u.username
+	`
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var stats []*domain.UserStatistics
+	for rows.Next() {
+		var stat domain.UserStatistics
+		if err := rows.Scan(
+			&stat.UserId,
+			&stat.Username,
+			&stat.TotalReviews,
+			&stat.OpenReviews,
+			&stat.MergedReviews,
+		); err != nil {
+			return nil, err
+		}
+		stats = append(stats, &stat)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return stats, nil
+}

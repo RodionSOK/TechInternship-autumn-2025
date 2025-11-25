@@ -51,10 +51,12 @@ func main() {
 	teamService := service.NewTeamService(teamRepo, userRepo)
 	userService := service.NewUserService(userRepo, prRepo)
 	prService := service.NewPRService(prRepo, userRepo, teamRepo)
+	statisticsService := service.NewStatisticsService(prRepo)
 
 	teamHandler := handler.NewTeamHandler(teamService)
 	userHandler := handler.NewUserHandler(userService)
 	prHandler := handler.NewPRHandler(prService)
+	statisticsHandler := handler.NewStatisticsHandler(statisticsService)
 
 	mux := http.NewServeMux()
 
@@ -67,6 +69,8 @@ func main() {
 	mux.HandleFunc("/pullRequest/create", prHandler.CreatePR)
 	mux.HandleFunc("/pullRequest/merge", prHandler.MergePR)
 	mux.HandleFunc("/pullRequest/reassign", prHandler.ReassignReviewer)
+
+	mux.HandleFunc("/statistics", statisticsHandler.GetStatistics)
 
 	server := &http.Server{
 		Addr:    ":" + cfg.Port,

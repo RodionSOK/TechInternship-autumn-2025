@@ -9,6 +9,7 @@ type UserRepository interface {
 	Create(user *domain.User) error
 	GetById(userId string) (*domain.User, error)
 	GetByTeamName(teamName string) ([]*domain.User, error)
+	GetAll() ([]*domain.User, error)
 	UpdateIsActive(userId string, isActive bool) error
 	Exists(userId string) (bool, error)
 }
@@ -28,4 +29,6 @@ type PRRepository interface {
 	ReplaceReviewer(prId string, oldReviewerId string, newReviewerId string) error
 	RemoveReviewer(prId string, reviewerId string) error
 	Exists(prId string) (bool, error)
+	GetPRStatistics() (total, open, merged int, err error)
+	GetUserReviewStatistics() ([]*domain.UserStatistics, error)
 }
