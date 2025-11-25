@@ -1,0 +1,30 @@
+with-expecter: true
+packages:
+  pr-reviewer-service/internal/repository:
+    interfaces:
+      TeamRepository:
+        config:
+          dir: "mocks"
+          outpkg: "mocks"
+      UserRepository:
+        config:
+          dir: "mocks"
+          outpkg: "mocks"
+      PRRepository:
+        config:
+          dir: "mocks"
+          outpkg: "mocks"
+  pr-reviewer-service/internal/service:
+    interfaces:
+      TeamService:
+        config:
+          dir: "mocks"
+          outpkg: "mocks"
+      UserService:
+        config:
+          dir: "mocks"
+          outpkg: "mocks"
+      PRService:
+        config:
+          dir: "mocks"
+          outpkg: "mocks"
